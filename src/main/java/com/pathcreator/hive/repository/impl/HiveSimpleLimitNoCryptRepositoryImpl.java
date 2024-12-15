@@ -10,9 +10,11 @@ import com.pathcreator.hive.io.ChunkCleaner;
 import com.pathcreator.hive.io.ChunkLoader;
 import com.pathcreator.hive.io.ChunkedInputStream;
 import com.pathcreator.hive.repository.HiveSimpleLimitNoCryptRepository;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 
+@Component
 public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCryptRepository {
 
     @Override

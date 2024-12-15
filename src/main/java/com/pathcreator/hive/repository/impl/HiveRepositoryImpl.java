@@ -10,10 +10,12 @@ import com.pathcreator.hive.io.ChunkCleaner;
 import com.pathcreator.hive.io.ChunkLoader;
 import com.pathcreator.hive.io.ChunkedInputStream;
 import com.pathcreator.hive.repository.HiveRepository;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Component
 public class HiveRepositoryImpl implements HiveRepository {
 
     @Override
