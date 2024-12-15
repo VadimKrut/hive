@@ -48,10 +48,9 @@ public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCr
         StringBuilder builder = new StringBuilder();
         if (id == null || id.isEmpty()) {
             builder.append("data/");
-            return builder.toString();
         } else {
             builder.append("data/").append(id).append("/");
-            return builder.toString();
         }
+        return builder.toString();
     }
 }
