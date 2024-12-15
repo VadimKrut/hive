@@ -18,8 +18,8 @@ import java.io.InputStream;
 public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCryptRepository {
 
     @Override
-    public String save(InputStream inputStream) throws ChunkedInputStreamException {
-        try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, null, null)) {
+    public String save(InputStream inputStream, String id) throws ChunkedInputStreamException {
+        try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, null, compileDirectory(id))) {
             return chunkedInputStream.processChunksToDirectory(POW_UNIQ.MEDIUM_UNIQ);
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to save data", e);
@@ -27,20 +27,31 @@ public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCr
     }
 
     @Override
-    public byte[] retrieveAsBytes(String fileName) throws ChunkLoaderException {
-        ChunkLoader chunkLoader = new ChunkLoader(null, fileName);
+    public byte[] retrieveAsBytes(String fileName, String id) throws ChunkLoaderException {
+        ChunkLoader chunkLoader = new ChunkLoader(compileDirectory(id), fileName);
         return chunkLoader.loadChunksToBytes();
     }
 
     @Override
-    public void delete(String fileName) throws ChunkCleanerException {
-        ChunkCleaner cleaner = new ChunkCleaner(null, fileName);
+    public void delete(String fileName, String id) throws ChunkCleanerException {
+        ChunkCleaner cleaner = new ChunkCleaner(compileDirectory(id), fileName);
         cleaner.cleanChunks();
     }
 
     @Override
-    public boolean exists(String fileName) throws ChunkCheckerException {
-        ChunkChecker checker = new ChunkChecker(null, fileName);
+    public boolean exists(String fileName, String id) throws ChunkCheckerException {
+        ChunkChecker checker = new ChunkChecker(compileDirectory(id), fileName);
         return checker.exists();
+    }
+
+    private String compileDirectory(String id) {
+        StringBuilder builder = new StringBuilder();
+        if (id == null || id.isEmpty()) {
+            builder.append("data/");
+            return builder.toString();
+        } else {
+            builder.append("data/").append(id).append("/");
+            return builder.toString();
+        }
     }
 }
