@@ -20,7 +20,7 @@ public class HiveRepositoryImpl implements HiveRepository {
 
     @Override
     public String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow) throws ChunkedInputStreamException {
-        try (ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, chunkSize, directory)) {
+        try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, chunkSize, directory)) {
             return chunkedInputStream.processChunksToDirectory(pow);
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to save data", e);

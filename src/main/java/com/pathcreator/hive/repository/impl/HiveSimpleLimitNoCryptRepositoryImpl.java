@@ -19,7 +19,7 @@ public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCr
 
     @Override
     public String save(InputStream inputStream) throws ChunkedInputStreamException {
-        try (ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, null, null)) {
+        try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, null, null)) {
             return chunkedInputStream.processChunksToDirectory(POW_UNIQ.MEDIUM_UNIQ);
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to save data", e);
