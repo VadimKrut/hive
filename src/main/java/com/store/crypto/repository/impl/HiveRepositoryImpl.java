@@ -1,11 +1,11 @@
-package com.store.crypto.hive.impl;
+package com.store.crypto.repository.impl;
 
 import com.store.crypto.enums.POW_UNIQ;
 import com.store.crypto.exception.ChunkCheckerException;
 import com.store.crypto.exception.ChunkCleanerException;
 import com.store.crypto.exception.ChunkLoaderException;
 import com.store.crypto.exception.ChunkedInputStreamException;
-import com.store.crypto.hive.HiveRepository;
+import com.store.crypto.repository.HiveRepository;
 import com.store.crypto.io.ChunkChecker;
 import com.store.crypto.io.ChunkCleaner;
 import com.store.crypto.io.ChunkLoader;

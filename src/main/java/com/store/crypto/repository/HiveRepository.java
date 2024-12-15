@@ -1,4 +1,4 @@
-package com.store.crypto.hive;
+package com.store.crypto.repository;
 
 import com.store.crypto.enums.POW_UNIQ;
 import com.store.crypto.exception.ChunkCheckerException;

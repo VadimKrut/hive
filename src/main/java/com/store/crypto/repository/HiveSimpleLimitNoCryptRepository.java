@@ -1,4 +1,4 @@
-package com.store.crypto.hive;
+package com.store.crypto.repository;
 
 import com.store.crypto.exception.ChunkCheckerException;
 import com.store.crypto.exception.ChunkCleanerException;
