@@ -9,34 +9,34 @@ import com.pathcreator.hive.io.ChunkChecker;
 import com.pathcreator.hive.io.ChunkCleaner;
 import com.pathcreator.hive.io.ChunkLoader;
 import com.pathcreator.hive.io.ChunkedInputStream;
-import com.pathcreator.hive.repository.HiveRepository;
+import com.pathcreator.hive.repository.HiveNoCryptRepository;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
 @Component
-public class HiveRepositoryImpl implements HiveRepository {
+public class HiveNoCryptRepositoryImpl implements HiveNoCryptRepository {
 
     @Override
-    public String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
+    public String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow) throws ChunkedInputStreamException {
         try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, chunkSize, directory)) {
-            return chunkedInputStream.processEncryptedChunks(key, nonce, counter, pow);
+            return chunkedInputStream.processChunksToDirectory(pow);
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to save data", e);
         }
     }
 
     @Override
-    public void retrieve(OutputStream outputStream, String directory, String fileName, byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
+    public void retrieve(OutputStream outputStream, String directory, String fileName) throws ChunkLoaderException {
         ChunkLoader chunkLoader = new ChunkLoader(directory, fileName);
-        chunkLoader.loadDecryptedChunksAsync(key, nonce, counter, outputStream);
+        chunkLoader.loadChunksAsynchronously(outputStream);
     }
 
     @Override
-    public byte[] retrieveAsBytes(String directory, String fileName, byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
+    public byte[] retrieveAsBytes(String directory, String fileName) throws ChunkLoaderException {
         ChunkLoader chunkLoader = new ChunkLoader(directory, fileName);
-        return chunkLoader.loadDecryptedChunksToBytes(key, nonce, counter);
+        return chunkLoader.loadChunksToBytes();
     }
 
     @Override
