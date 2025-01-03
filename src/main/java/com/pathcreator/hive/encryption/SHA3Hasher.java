@@ -31,7 +31,7 @@ public class SHA3Hasher {
             byte[] result = generateString(another, secretKey);
             return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
         } catch (Exception e) {
-            throw new SHA3HasherException("Ошибка при генерации уникальной строки", e);
+            throw new SHA3HasherException("Error generating a unique string", e);
         }
     }
 

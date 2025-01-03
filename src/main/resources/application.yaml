@@ -1,3 +1,5 @@
 spring:
   application:
     name: hive
+server:
+  port: ${server.port:20006}
