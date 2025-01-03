@@ -10,10 +10,12 @@ import com.pathcreator.hive.io.ChunkCleaner;
 import com.pathcreator.hive.io.ChunkLoader;
 import com.pathcreator.hive.io.ChunkedInputStream;
 import com.pathcreator.hive.repository.HiveSimpleLimitNoCryptRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 
+@Slf4j
 @Component
 public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCryptRepository {
 
