@@ -2,4 +2,36 @@ spring:
   application:
     name: hive
 server:
-  port: ${server.port:20006}
+  servlet:
+    context-path: ${CONTEXT_PATH:/}
+  error:
+    include-message: always
+  port: ${SERVER_PORT:20006}
+springdoc:
+  api-docs:
+    path: ${API_DOCS_PATH:/v1/openapi.json}
+  swagger-ui:
+    path: ${SWAGGER_UI_PATH:/}
+    disable-swagger-default-url: true
+    doc-expansion: none
+  pre-loading-enabled: true
+swagger:
+  url:
+    hive: ${PROTOCOL:http}://${HOST:localhost}:${SERVER_PORT:20006}${CONTEXT_PATH:/}
+    outside: ${OUTSIDE_URL:http://localhost:20006}${CONTEXT_PATH:/}
+jwt:
+  secret: ${JWT_SECRET:a4ae17bff2dc693852f66450e0a317a2}
+logging:
+  config: ${LOGGING_CONFIG:classpath:logback-spring.xml}
+management:
+  endpoint:
+    info:
+      enabled: true
+  endpoints:
+    web:
+      base-path: ${CONTEXT_PATH:/}
+      exposure:
+        include: info,health,prometheus
+      path-mapping:
+        prometheus: metrics
+        health: healthcheck
