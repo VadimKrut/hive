@@ -14,4 +14,6 @@ public interface HiveSimpleLimitNoCryptService {
     Response save(String uniq, BytesStream bytesStream);
 
     Response getFile(String id, String uniq, Boolean disposition, String type);
+
+    void deleteFile(String id, String uniq);
 }

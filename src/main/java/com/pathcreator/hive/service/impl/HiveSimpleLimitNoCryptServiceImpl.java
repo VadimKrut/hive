@@ -69,7 +69,7 @@ public class HiveSimpleLimitNoCryptServiceImpl implements HiveSimpleLimitNoCrypt
                 try {
                     hiveSimpleLimitNoCryptRepository.retrieve(id, uniq, outputStream);
                 } catch (Exception e) {
-                    throw new ApiException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while streaming file", e);
+                    throw new ApiException(HttpServletResponse.SC_NOT_FOUND, "File not found");
                 }
             };
             String mimeType = Files.probeContentType(Path.of("exampl." + finalType));
@@ -84,6 +84,18 @@ public class HiveSimpleLimitNoCryptServiceImpl implements HiveSimpleLimitNoCrypt
             }
             return responseBuilder.build();
         });
+    }
+
+    @Override
+    public void deleteFile(String id, String uniq) {
+        if (id == null) {
+            throw new ApiException(HttpServletResponse.SC_BAD_REQUEST, "id is null");
+        }
+        try {
+            hiveSimpleLimitNoCryptRepository.delete(id, uniq);
+        } catch (Exception e) {
+            throw new ApiException(HttpServletResponse.SC_NOT_FOUND, "File not found");
+        }
     }
 
     private <T> T measureExecutionTime(String methodName, Callable<T> callable) {

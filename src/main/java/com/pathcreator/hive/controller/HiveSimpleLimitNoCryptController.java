@@ -57,14 +57,32 @@ public interface HiveSimpleLimitNoCryptController {
             @ApiResponse(responseCode = "" + HttpServletResponse.SC_OK, description = "the request was successful",
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = @Schema(implementation = StreamingOutput.class))),
             @ApiResponse(responseCode = "" + HttpServletResponse.SC_BAD_REQUEST, description = """
-                    * hiveId is null
+                    * id is null
                     """),
             @ApiResponse(responseCode = "" + HttpServletResponse.SC_NOT_FOUND, description = "file not found")
     })
     Response getFile(
-            @Parameter(description = "Уникальный идентификатор файла в хранилище", required = true) @PathParam("id") String id,
+            @Parameter(description = "The unique identifier of the file in the repository", required = true) @PathParam("id") String id,
             @Parameter(description = "Unique string for identity user") @QueryParam("uniq") String uniq,
-            @Parameter(description = "При получении сразу скачать или отобразить?, если не передать то будет true следовательно файл при получении сразу начнет скачиваться") @QueryParam("disposition") Boolean disposition,
-            @Parameter(description = "Тип файла", example = "pdf") @QueryParam("type") String type
+            @Parameter(description = "Upon receipt, download immediately or display?, if not transmitted, it will be true, therefore, the file will immediately start downloading upon receipt.") @QueryParam("disposition") Boolean disposition,
+            @Parameter(description = "File Type", example = "pdf") @QueryParam("type") String type
+    );
+
+    @Operation(
+            summary = "Delete a file",
+            description = "Delete a file"
+    )
+    @DELETE
+    @Path("/{id}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "" + HttpServletResponse.SC_OK, description = "the request was successful"),
+            @ApiResponse(responseCode = "" + HttpServletResponse.SC_BAD_REQUEST, description = """
+                    * id is null
+                    """),
+            @ApiResponse(responseCode = "" + HttpServletResponse.SC_NOT_FOUND, description = "file not found")
+    })
+    void deleteFile(
+            @Parameter(description = "The unique identifier of the file in the repository", required = true) @PathParam("id") String id,
+            @Parameter(description = "Unique string for identity user") @QueryParam("uniq") String uniq
     );
 }

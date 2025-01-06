@@ -22,4 +22,9 @@ public class HiveSimpleLimitNoCryptControllerImpl implements HiveSimpleLimitNoCr
     public Response getFile(String id, String uniq, Boolean disposition, String type) {
         return hiveSimpleLimitNoCryptService.getFile(id, uniq, disposition, type);
     }
+
+    @Override
+    public void deleteFile(String id, String uniq) {
+        hiveSimpleLimitNoCryptService.deleteFile(id, uniq);
+    }
 }
