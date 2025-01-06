@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
@@ -20,13 +21,22 @@ import static com.pathcreator.hive.util.ChunkUtils.uniqString;
 import static com.pathcreator.hive.util.ChunkUtils.validateDirectory;
 
 public class ChunkedInputStream extends InputStream {
-    protected final InputStream sourceStream;
+    protected InputStream sourceStream;
     protected final Integer chunkSize;
     protected String directory;
     protected static final int KB_16 = 16384;
     protected static final int KB_64 = 65536;
     protected static final int MB_100 = 104857600;
     protected static final String DEFAULT_DIRECTORY = "data/";
+
+    public ChunkedInputStream(Integer chunkSize, String directory) {
+        if (chunkSize == null || chunkSize <= KB_16 || chunkSize > MB_100) {
+            this.chunkSize = KB_64;
+        } else {
+            this.chunkSize = chunkSize;
+        }
+        this.directory = (directory == null || directory.isEmpty()) ? DEFAULT_DIRECTORY : validateDirectory(directory);
+    }
 
     public ChunkedInputStream(InputStream sourceStream, Integer chunkSize, String directory) throws ChunkedInputStreamException {
         this.sourceStream = Objects.requireNonNull(sourceStream, "Source stream cannot be null");
@@ -48,6 +58,21 @@ public class ChunkedInputStream extends InputStream {
         return processChunksInternal(pow, key, nonce, counter);
     }
 
+    public String processChunksToDirectory(POW_UNIQ pow, Map<Long, Map<Integer, byte[]>> table) throws ChunkedInputStreamException {
+        if (table == null || table.isEmpty()) {
+            throw new ChunkedInputStreamException("Table cannot be null or empty");
+        }
+        return processChunksInternal(pow, null, null, null, table);
+    }
+
+    public String processEncryptedChunks(byte[] key, byte[] nonce, Integer counter, POW_UNIQ pow, Map<Long, Map<Integer, byte[]>> table) throws ChunkedInputStreamException {
+        validateCrypto(key, nonce, counter);
+        if (table == null || table.isEmpty()) {
+            throw new ChunkedInputStreamException("Table cannot be null or empty");
+        }
+        return processChunksInternal(pow, key, nonce, counter, table);
+    }
+
     private String processChunksInternal(POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
         byte[] buffer = new byte[chunkSize];
         int bytesRead;
@@ -59,18 +84,7 @@ public class ChunkedInputStream extends InputStream {
             while ((bytesRead = sourceStream.read(buffer)) != -1) {
                 int currentIndex = chunkIndex++;
                 byte[] chunk = Arrays.copyOf(buffer, bytesRead);
-                executor.submit(() -> {
-                    try {
-                        if (counter != null) {
-                            writeChunkToFile(uniqueDirName, currentIndex,
-                                    ChaCha20Cipher.encrypt(key, nonce, counter + currentIndex, chunk));
-                        } else {
-                            writeChunkToFile(uniqueDirName, currentIndex, chunk);
-                        }
-                    } catch (IOException | ChaCha20CipherException e) {
-                        throw new CompletionException("Error saving chunk: " + currentIndex, e);
-                    }
-                });
+                executor(key, nonce, counter, executor, uniqueDirName, chunk, currentIndex);
             }
             executor.shutdown();
             if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
@@ -80,6 +94,49 @@ public class ChunkedInputStream extends InputStream {
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to process chunks", e);
         }
+    }
+
+    private String processChunksInternal(POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter, Map<Long, Map<Integer, byte[]>> table) throws ChunkedInputStreamException {
+        int chunkIndex = 0;
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            String name = uniqString(pow);
+            String uniqueDirName = directory + name;
+            Files.createDirectories(Paths.get(uniqueDirName));
+            for (long keyOuter : table.keySet()) {
+                Map<Integer, byte[]> innerMap = table.get(keyOuter);
+                if (innerMap != null) {
+                    for (int keyInner : innerMap.keySet()) {
+                        byte[] chunk = innerMap.get(keyInner);
+                        if (chunk != null) {
+                            int currentIndex = chunkIndex++;
+                            executor(key, nonce, counter, executor, uniqueDirName, chunk, currentIndex);
+                        }
+                    }
+                }
+            }
+            executor.shutdown();
+            if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
+                throw new InterruptedException("Threads interrupted while waiting for chunks to finish");
+            }
+            return name;
+        } catch (Exception e) {
+            throw new ChunkedInputStreamException("Failed to process chunks", e);
+        }
+    }
+
+    private void executor(byte[] key, byte[] nonce, Integer counter, ExecutorService executor, String uniqueDirName, byte[] chunk, int currentIndex) {
+        executor.submit(() -> {
+            try {
+                if (counter != null) {
+                    writeChunkToFile(uniqueDirName, currentIndex,
+                            ChaCha20Cipher.encrypt(key, nonce, counter + currentIndex, chunk));
+                } else {
+                    writeChunkToFile(uniqueDirName, currentIndex, chunk);
+                }
+            } catch (IOException | ChaCha20CipherException e) {
+                throw new CompletionException("Error saving chunk: " + currentIndex, e);
+            }
+        });
     }
 
     protected void validateCrypto(byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
@@ -115,6 +172,8 @@ public class ChunkedInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-        sourceStream.close();
+        if (sourceStream != null) {
+            sourceStream.close();
+        }
     }
 }

@@ -6,6 +6,8 @@ import com.pathcreator.hive.exception.ChunkLoaderException;
 import com.pathcreator.hive.exception.ChunkedInputStreamException;
 
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
 
 public interface HiveSimpleLimitNoCryptRepository {
 
@@ -20,6 +22,16 @@ public interface HiveSimpleLimitNoCryptRepository {
     String save(InputStream inputStream, String id) throws ChunkedInputStreamException;
 
     /**
+     * Сохраняет данные в базу данных.
+     *
+     * @param table входной поток данных.
+     * @param id    уникальный идентификатор
+     * @return имя директории, где сохранены данные.
+     * @throws ChunkedInputStreamException в случае ошибок при сохранении.
+     */
+    String save(Map<Long, Map<Integer, byte[]>> table, String id) throws ChunkedInputStreamException;
+
+    /**
      * Получает данные из базы данных в виде массива байтов.
      *
      * @param fileName имя директории с данными.
@@ -28,6 +40,16 @@ public interface HiveSimpleLimitNoCryptRepository {
      * @throws ChunkLoaderException в случае ошибок при загрузке.
      */
     byte[] retrieveAsBytes(String fileName, String id) throws ChunkLoaderException;
+
+    /**
+     * Получает данные из базы данных в виде массива байтов.
+     *
+     * @param fileName     имя директории с данными.
+     * @param id           уникальный идентификатор
+     * @param outputStream поток данных.
+     * @throws ChunkLoaderException в случае ошибок при загрузке.
+     */
+    void retrieve(String fileName, String id, OutputStream outputStream) throws ChunkLoaderException;
 
     /**
      * Удаляет данные из базы данных.

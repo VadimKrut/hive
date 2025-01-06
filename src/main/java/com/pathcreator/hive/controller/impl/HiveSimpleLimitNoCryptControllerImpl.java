@@ -1,12 +1,11 @@
 package com.pathcreator.hive.controller.impl;
 
 import com.pathcreator.hive.controller.HiveSimpleLimitNoCryptController;
+import com.pathcreator.hive.io.BytesStream;
 import com.pathcreator.hive.service.HiveSimpleLimitNoCryptService;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.io.InputStream;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +14,12 @@ public class HiveSimpleLimitNoCryptControllerImpl implements HiveSimpleLimitNoCr
     private final HiveSimpleLimitNoCryptService hiveSimpleLimitNoCryptService;
 
     @Override
-    public Response save(String uniq, InputStream inputStream) {
-        return hiveSimpleLimitNoCryptService.save(uniq, inputStream);
+    public Response save(String uniq, BytesStream bytesStream) {
+        return hiveSimpleLimitNoCryptService.save(uniq, bytesStream);
+    }
+
+    @Override
+    public Response getFile(String id, String uniq, Boolean disposition, String type) {
+        return hiveSimpleLimitNoCryptService.getFile(id, uniq, disposition, type);
     }
 }

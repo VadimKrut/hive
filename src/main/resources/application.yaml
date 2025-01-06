@@ -35,3 +35,5 @@ management:
       path-mapping:
         prometheus: metrics
         health: healthcheck
+chunk:
+  size: ${CHUNK_SIZE:0}

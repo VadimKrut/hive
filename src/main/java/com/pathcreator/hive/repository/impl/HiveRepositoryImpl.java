@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Component
 public class HiveRepositoryImpl implements HiveRepository {
@@ -22,6 +23,15 @@ public class HiveRepositoryImpl implements HiveRepository {
     public String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
         try (inputStream; ChunkedInputStream chunkedInputStream = new ChunkedInputStream(inputStream, chunkSize, directory)) {
             return chunkedInputStream.processEncryptedChunks(key, nonce, counter, pow);
+        } catch (Exception e) {
+            throw new ChunkedInputStreamException("Failed to save data", e);
+        }
+    }
+
+    @Override
+    public String save(Map<Long, Map<Integer, byte[]>> table, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
+        try (ChunkedInputStream chunkedInputStream = new ChunkedInputStream(chunkSize, directory)) {
+            return chunkedInputStream.processEncryptedChunks(key, nonce, counter, pow, table);
         } catch (Exception e) {
             throw new ChunkedInputStreamException("Failed to save data", e);
         }

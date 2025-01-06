@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -29,9 +31,24 @@ public class HiveSimpleLimitNoCryptRepositoryImpl implements HiveSimpleLimitNoCr
     }
 
     @Override
+    public String save(Map<Long, Map<Integer, byte[]>> table, String id) throws ChunkedInputStreamException {
+        try (ChunkedInputStream chunkedInputStream = new ChunkedInputStream(null, compileDirectory(id))) {
+            return chunkedInputStream.processChunksToDirectory(POW_UNIQ.MEDIUM_UNIQ, table);
+        } catch (Exception e) {
+            throw new ChunkedInputStreamException("Failed to save data", e);
+        }
+    }
+
+    @Override
     public byte[] retrieveAsBytes(String fileName, String id) throws ChunkLoaderException {
         ChunkLoader chunkLoader = new ChunkLoader(compileDirectory(id), fileName);
         return chunkLoader.loadChunksToBytes();
+    }
+
+    @Override
+    public void retrieve(String fileName, String id, OutputStream outputStream) throws ChunkLoaderException {
+        ChunkLoader chunkLoader = new ChunkLoader(compileDirectory(id), fileName);
+        chunkLoader.loadChunksAsynchronously(outputStream);
     }
 
     @Override

@@ -8,10 +8,13 @@ import com.pathcreator.hive.exception.ChunkedInputStreamException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 public interface HiveRepository {
 
     String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException;
+
+    String save(Map<Long, Map<Integer, byte[]>> table, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException;
 
     void retrieve(OutputStream outputStream, String directory, String fileName, byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException;
 
