@@ -39,12 +39,11 @@ public class HiveSimpleLimitNoCryptServiceImpl implements HiveSimpleLimitNoCrypt
 
     @Override
     public Response save(String uniq, BytesStream bytesStream) {
-        return measureExecutionTime("HiveSimpleLimitNoCryptController: save: bytesStream", () -> {
+        return measureExecutionTime("HiveSimpleLimitNoCryptController: save: BytesStream", () -> {
             if (bytesStream.getTable() == null || bytesStream.getTable().isEmpty()) {
                 throw new ApiException(HttpServletResponse.SC_BAD_REQUEST, "InputStream is null");
             }
             try (bytesStream) {
-                System.out.println(bytesStream.getTable().size());
                 return Response.ok(hiveSimpleLimitNoCryptRepository.save(bytesStream.getTable(), uniq)).build();
             } catch (Exception e) {
                 throw new ApiException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getMessage());

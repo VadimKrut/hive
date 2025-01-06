@@ -17,8 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.pathcreator.hive.util.ChunkUtils.uniqString;
-import static com.pathcreator.hive.util.ChunkUtils.validateDirectory;
+import static com.pathcreator.hive.util.ChunkUtils.*;
 
 public class ChunkedInputStream extends InputStream {
     protected InputStream sourceStream;
@@ -31,7 +30,7 @@ public class ChunkedInputStream extends InputStream {
 
     public ChunkedInputStream(Integer chunkSize, String directory) {
         if (chunkSize == null || chunkSize <= KB_16 || chunkSize > MB_100) {
-            this.chunkSize = KB_64;
+            this.chunkSize = defaultChunkSize();
         } else {
             this.chunkSize = chunkSize;
         }
