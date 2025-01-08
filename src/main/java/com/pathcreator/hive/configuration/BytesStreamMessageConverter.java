@@ -40,12 +40,16 @@ public class BytesStreamMessageConverter implements HttpMessageConverter<BytesSt
 
     @NonNull
     @Override
-    public BytesStream read(@NonNull Class<? extends BytesStream> clazz, HttpInputMessage inputMessage)
+    public BytesStream read(@NonNull Class<? extends BytesStream> clazz, @NonNull HttpInputMessage inputMessage)
             throws IOException, HttpMessageNotReadableException {
-        if (chunkSize == null || chunkSize <= 0) {
-            return new BytesStream(inputMessage.getBody(), defaultChunkSize());
-        } else {
+        String chunkSizeHeader = inputMessage.getHeaders().getFirst("chunk-size");
+        Integer customChunkSize = chunkSizeHeader != null ? Integer.parseInt(chunkSizeHeader) : null;
+        if (customChunkSize != null) {
+            return new BytesStream(inputMessage.getBody(), customChunkSize);
+        } else if (chunkSize != null && chunkSize > 8000) {
             return new BytesStream(inputMessage.getBody(), chunkSize);
+        } else {
+            return new BytesStream(inputMessage.getBody(), defaultChunkSize());
         }
     }
 

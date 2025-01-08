@@ -31,10 +31,14 @@ public class BytesStreamMessageBodyReader implements MessageBodyReader<BytesStre
     public BytesStream readFrom(Class<BytesStream> type, Type genericType, Annotation[] annotations,
                                 MediaType mediaType, jakarta.ws.rs.core.MultivaluedMap<String, String> httpHeaders,
                                 InputStream entityStream) {
-        if (chunkSize == null || chunkSize <= 0) {
-            return new BytesStream(entityStream, defaultChunkSize());
-        } else {
+        String chunkSizeHeader = httpHeaders.getFirst("chunk-size");
+        Integer customChunkSize = chunkSizeHeader != null ? Integer.parseInt(chunkSizeHeader) : null;
+        if (customChunkSize != null) {
+            return new BytesStream(entityStream, customChunkSize);
+        } else if (chunkSize != null && chunkSize > 8000) {
             return new BytesStream(entityStream, chunkSize);
+        } else {
+            return new BytesStream(entityStream, defaultChunkSize());
         }
     }
 }

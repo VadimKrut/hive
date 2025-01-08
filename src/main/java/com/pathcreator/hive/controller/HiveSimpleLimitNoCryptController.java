@@ -41,6 +41,7 @@ public interface HiveSimpleLimitNoCryptController {
             @ApiResponse(responseCode = "405", description = "Some error occurred")
     })
     Response save(
+            @Parameter(description = "Size of each chunk in bytes") @HeaderParam("chunk-size") Integer chunkSize,
             @Parameter(description = "Unique string for identity user") @QueryParam("uniq") String uniq,
             @Parameter(description = "File to save", required = true) @RequestBody BytesStream bytesStream
     );

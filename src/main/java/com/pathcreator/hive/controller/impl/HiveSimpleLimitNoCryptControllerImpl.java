@@ -14,7 +14,7 @@ public class HiveSimpleLimitNoCryptControllerImpl implements HiveSimpleLimitNoCr
     private final HiveSimpleLimitNoCryptService hiveSimpleLimitNoCryptService;
 
     @Override
-    public Response save(String uniq, BytesStream bytesStream) {
+    public Response save(Integer chunkSize, String uniq, BytesStream bytesStream) {
         return hiveSimpleLimitNoCryptService.save(uniq, bytesStream);
     }
 
