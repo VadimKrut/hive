@@ -16,7 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.concurrent.Callable;
+
+import static com.pathcreator.hive.util.ExecutionTime.measureExecutionTime;
 
 @Slf4j
 @Service
@@ -95,18 +96,6 @@ public class HiveSimpleLimitNoCryptServiceImpl implements HiveSimpleLimitNoCrypt
             hiveSimpleLimitNoCryptRepository.delete(id, uniq);
         } catch (Exception e) {
             throw new ApiException(HttpServletResponse.SC_NOT_FOUND, "File not found");
-        }
-    }
-
-    private <T> T measureExecutionTime(String methodName, Callable<T> callable) {
-        long startTime = System.currentTimeMillis();
-        try {
-            return callable.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("Execution time for {}: {} ms", methodName, duration);
         }
     }
 }

@@ -21,12 +21,16 @@ import static com.pathcreator.hive.util.ChunkUtils.*;
 
 public class ChunkedInputStream extends InputStream {
     protected InputStream sourceStream;
-    protected final Integer chunkSize;
+    protected Integer chunkSize;
     protected String directory;
     protected static final int KB_16 = 16384;
     protected static final int KB_64 = 65536;
     protected static final int MB_100 = 104857600;
     protected static final String DEFAULT_DIRECTORY = "data/";
+
+    public ChunkedInputStream(String directory) {
+        this.directory = (directory == null || directory.isEmpty()) ? DEFAULT_DIRECTORY : validateDirectory(directory);
+    }
 
     public ChunkedInputStream(Integer chunkSize, String directory) {
         if (chunkSize == null || chunkSize <= KB_16 || chunkSize > MB_100) {

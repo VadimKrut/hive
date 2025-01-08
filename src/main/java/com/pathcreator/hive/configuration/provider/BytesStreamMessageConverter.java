@@ -1,4 +1,4 @@
-package com.pathcreator.hive.configuration;
+package com.pathcreator.hive.configuration.provider;
 
 import com.pathcreator.hive.io.BytesStream;
 import org.springframework.beans.factory.annotation.Value;

@@ -5,10 +5,7 @@ import com.pathcreator.hive.exception.ChunkCheckerException;
 import com.pathcreator.hive.exception.ChunkCleanerException;
 import com.pathcreator.hive.exception.ChunkLoaderException;
 import com.pathcreator.hive.exception.ChunkedInputStreamException;
-import com.pathcreator.hive.io.ChunkChecker;
-import com.pathcreator.hive.io.ChunkCleaner;
-import com.pathcreator.hive.io.ChunkLoader;
-import com.pathcreator.hive.io.ChunkedInputStream;
+import com.pathcreator.hive.io.*;
 import com.pathcreator.hive.repository.HiveRepository;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +15,19 @@ import java.util.Map;
 
 @Component
 public class HiveRepositoryImpl implements HiveRepository {
+
+    @Override
+    public String save(BytesStream bytesStream, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter, boolean crypt) throws ChunkedInputStreamException {
+        try (ChunkedInputStream chunkedInputStream = new ChunkedInputStream(directory)) {
+            if (crypt) {
+                return chunkedInputStream.processEncryptedChunks(key, nonce, counter, pow, bytesStream.getTable());
+            } else {
+                return chunkedInputStream.processChunksToDirectory(pow, bytesStream.getTable());
+            }
+        } catch (Exception e) {
+            throw new ChunkedInputStreamException("Failed to save data", e);
+        }
+    }
 
     @Override
     public String save(InputStream inputStream, Integer chunkSize, String directory, POW_UNIQ pow, byte[] key, byte[] nonce, Integer counter) throws ChunkedInputStreamException {
@@ -38,9 +48,13 @@ public class HiveRepositoryImpl implements HiveRepository {
     }
 
     @Override
-    public void retrieve(OutputStream outputStream, String directory, String fileName, byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
+    public void retrieve(OutputStream outputStream, String directory, String fileName, byte[] key, byte[] nonce, Integer counter, boolean crypt) throws ChunkLoaderException {
         ChunkLoader chunkLoader = new ChunkLoader(directory, fileName);
-        chunkLoader.loadDecryptedChunksAsync(key, nonce, counter, outputStream);
+        if (crypt) {
+            chunkLoader.loadDecryptedChunksAsync(key, nonce, counter, outputStream);
+        } else {
+            chunkLoader.loadChunksAsynchronously(outputStream);
+        }
     }
 
     @Override

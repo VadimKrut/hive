@@ -30,6 +30,6 @@ public class ChunkUtils {
         if (uniq == POW_UNIQ.HARD_UNIQ) {
             return SHA3Hasher.generateUniqueString();
         }
-        return UUID.randomUUID().toString();
+        return String.valueOf(SnowflakeIdSingleton.getInstance().nextId());
     }
 }
