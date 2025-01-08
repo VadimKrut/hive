@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.*;
 
@@ -43,16 +44,16 @@ public class ChunkLoader {
     }
 
     protected void loadChunksInternal(byte[] key, byte[] nonce, Integer counter, OutputStream outputStream) throws ChunkLoaderException {
-        ConcurrentHashMap<Integer, CompletableFuture<byte[]>> chunkMap = loadChunksMapAsync(key, nonce, counter);
+        HashMap<Integer, CompletableFuture<byte[]>> chunkMap = loadChunksMapAsync(key, nonce, counter);
         writeChunksToStream(outputStream, chunkMap);
     }
 
     protected byte[] loadChunksToBytesInternal(byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
-        ConcurrentHashMap<Integer, CompletableFuture<byte[]>> chunkMap = loadChunksMapAsync(key, nonce, counter);
+        HashMap<Integer, CompletableFuture<byte[]>> chunkMap = loadChunksMapAsync(key, nonce, counter);
         return mergeChunksToBytes(chunkMap);
     }
 
-    protected byte[] mergeChunksToBytes(ConcurrentHashMap<Integer, CompletableFuture<byte[]>> chunkMap) throws ChunkLoaderException {
+    protected byte[] mergeChunksToBytes(HashMap<Integer, CompletableFuture<byte[]>> chunkMap) throws ChunkLoaderException {
         if (chunkMap.isEmpty()) {
             throw new ChunkLoaderException("Chunk map is empty");
         }
@@ -76,7 +77,7 @@ public class ChunkLoader {
         }
     }
 
-    protected void writeChunksToStream(OutputStream outputStream, ConcurrentHashMap<Integer, CompletableFuture<byte[]>> chunkMap) throws ChunkLoaderException {
+    protected void writeChunksToStream(OutputStream outputStream, HashMap<Integer, CompletableFuture<byte[]>> chunkMap) throws ChunkLoaderException {
         if (chunkMap.isEmpty()) {
             throw new ChunkLoaderException("Chunk map is empty");
         }
@@ -95,8 +96,8 @@ public class ChunkLoader {
         }
     }
 
-    protected ConcurrentHashMap<Integer, CompletableFuture<byte[]>> loadChunksMapAsync(byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
-        ConcurrentHashMap<Integer, CompletableFuture<byte[]>> loadedChunks = new ConcurrentHashMap<>();
+    protected HashMap<Integer, CompletableFuture<byte[]>> loadChunksMapAsync(byte[] key, byte[] nonce, Integer counter) throws ChunkLoaderException {
+        HashMap<Integer, CompletableFuture<byte[]>> loadedChunks = new HashMap<>();
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             File[] files = getSortedFiles();
             for (int i = 0; i < files.length; i++) {
