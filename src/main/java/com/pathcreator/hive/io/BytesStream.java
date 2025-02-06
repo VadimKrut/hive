@@ -79,6 +79,13 @@ public class BytesStream implements Closeable, Serializable {
         }
     }
 
+    public byte[] getFirstBytes() {
+        return table.entrySet().stream()
+                .findFirst()
+                .map(entry -> entry.getValue().get(0))
+                .orElse(null);
+    }
+
     @Override
     public void close() throws IOException {
         table.clear();
